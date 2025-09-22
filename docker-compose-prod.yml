@@ -1,0 +1,134 @@
+services:
+  alta-jsongen:
+    build:
+      context: ./Backend/alta-jsongeneration/AltaScience
+      dockerfile: Dockerfile-prod
+      args:
+        PORT: 7030
+        APP_MODULE: "main:app"
+    image: alta-jsongen:prod
+    container_name: alta-jsongen
+    ports:
+      - "7030:7030"
+    volumes:
+      - ./Backend/alta-jsongeneration/AltaScience/temp_files:/app/temp_files
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=7030
+      - APP_MODULE=main:app
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks: [prod-net]
+
+  alta-docgen:
+    build:
+      context: ./Backend/alta-doc-gen/AltaScience
+      dockerfile: Dockerfile-prod
+      args:
+        PORT: 8082
+        APP_MODULE: "app.main:app"
+    image: alta-docgen:prod
+    container_name: alta-docgen
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./Backend/alta-doc-gen/AltaScience/output:/app/output
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8082
+      - APP_MODULE=app.main:app
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks: [prod-net]
+
+  alta-qa:
+    build:
+      context: ./Backend/altaqa/AltaScience
+      dockerfile: Dockerfile-prod
+      args:
+        PORT: 8083
+        APP_MODULE: "main:app"
+    image: alta-qa:prod
+    container_name: alta-qa
+    ports:
+      - "8083:8083"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8083
+      - APP_MODULE=main:app
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks: [prod-net]
+
+  json-regeneration:
+    build:
+      context: ./Backend/alta-json-re-generation/AltaScience
+      dockerfile: Dockerfile-prod
+      args:
+        PORT: 8084
+        APP_MODULE: "main:app"
+    image: json-regeneration:prod
+    container_name: json-regeneration
+    ports:
+      - "8084:8084"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8084
+      - APP_MODULE=main:app
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks: [prod-net]
+
+  document-generation-pipeline:
+    build:
+      context: ./Backend/integration-doc-gen/AltaScience
+      dockerfile: Dockerfile-prod
+      args:
+        PORT: 8085
+        APP_MODULE: "main:app"
+    image: document-generation-pipeline:prod
+    container_name: document-generation-pipeline
+    ports:
+      - "8085:8085"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8085
+      - APP_MODULE=main:app
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks: [prod-net]
+
+networks:
+  prod-net:
+    driver: bridge
+
