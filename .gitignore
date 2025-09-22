@@ -1,0 +1,14 @@
+# Ignore dependencies
+node_modules/
+*.pyc
+*.class
+
+# Ignore build outputs
+build/
+dist/
+target/
+__pycache__/
+
+# Logs
+*.log
+
